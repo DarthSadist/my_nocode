@@ -32,14 +32,16 @@ generate_safe_password() {
 # Function to generate passwords with special characters for Flowise
 generate_flowise_password() {
   length=$1
-  # Генерируем основную часть пароля (length-1 символов)
-  base_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $((length-1)) | head -n 1)
-  # Получаем случайный спецсимвол
-  special_char=$(cat /dev/urandom | tr -dc '!@#$%^&*()-_=+' | fold -w 1 | head -n 1)
-  # Случайная позиция для вставки спецсимвола
-  position=$((RANDOM % ${#base_password}))
-  # Вставляем спецсимвол в случайную позицию
-  echo ${base_password:0:$position}${special_char}${base_password:$position}
+  # Гарантируем, что пароль будет содержать минимум один спецсимвол
+  password="Abc123!"
+  
+  # Добавляем еще символов до требуемой длины
+  if [ "$length" -gt 7 ]; then
+    additional_chars=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%^&*()-_=+' | fold -w $((length-7)) | head -n 1)
+    password="${password}${additional_chars}"
+  fi
+  
+  echo "$password"
 }
 
 # Generating keys and passwords
