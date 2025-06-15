@@ -91,5 +91,19 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Создание Docker томов для Redis и PostgreSQL
+echo "Creating Docker volumes for Redis and PostgreSQL..."
+sudo docker volume create redis_data
+if [ $? -ne 0 ]; then
+  echo "ERROR: Failed to create Docker volume redis_data"
+  exit 1
+fi
+
+sudo docker volume create postgres_data
+if [ $? -ne 0 ]; then
+  echo "ERROR: Failed to create Docker volume postgres_data"
+  exit 1
+fi
+
 echo "✅ Directories and users successfully configured"
 exit 0 

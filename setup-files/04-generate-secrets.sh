@@ -29,6 +29,19 @@ generate_safe_password() {
   cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${length} | head -n 1
 }
 
+# Function to generate passwords with special characters for Flowise
+generate_flowise_password() {
+  length=$1
+  # Генерируем основную часть пароля (length-1 символов)
+  base_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $((length-1)) | head -n 1)
+  # Получаем случайный спецсимвол
+  special_char=$(cat /dev/urandom | tr -dc '!@#$%^&*()-_=+' | fold -w 1 | head -n 1)
+  # Случайная позиция для вставки спецсимвола
+  position=$((RANDOM % ${#base_password}))
+  # Вставляем спецсимвол в случайную позицию
+  echo ${base_password:0:$position}${special_char}${base_password:$position}
+}
+
 # Generating keys and passwords
 N8N_ENCRYPTION_KEY=$(generate_random_string 40)
 if [ -z "$N8N_ENCRYPTION_KEY" ]; then
@@ -49,7 +62,8 @@ if [ -z "$N8N_PASSWORD" ]; then
   exit 1
 fi
 
-FLOWISE_PASSWORD=$(generate_safe_password 16)
+# Используем специальную функцию для генерации пароля с обязательным спецсимволом
+FLOWISE_PASSWORD=$(generate_flowise_password 16)
 if [ -z "$FLOWISE_PASSWORD" ]; then
   echo "ERROR: Failed to generate password for Flowise"
   exit 1
@@ -80,6 +94,22 @@ if [ -z "$TOKEN_HASH_SECRET" ]; then
   exit 1
 fi
 
+# Генерация учетных данных и секретов для Redis
+REDIS_PASSWORD=$(generate_random_string 20)
+if [ -z "$REDIS_PASSWORD" ]; then
+  echo "ERROR: Failed to generate password for Redis"
+  exit 1
+fi
+
+# Генерация учетных данных для PostgreSQL
+POSTGRES_USER="flowise"
+POSTGRES_PASSWORD=$(generate_random_string 20)
+POSTGRES_DB="flowise"
+if [ -z "$POSTGRES_PASSWORD" ]; then
+  echo "ERROR: Failed to generate password for PostgreSQL"
+  exit 1
+fi
+
 # Writing values to .env file
 cat > .env << EOL
 # Settings for n8n
@@ -101,6 +131,14 @@ JWT_AUTH_TOKEN_SECRET=$JWT_AUTH_TOKEN_SECRET
 JWT_REFRESH_TOKEN_SECRET=$JWT_REFRESH_TOKEN_SECRET
 EXPRESS_SESSION_SECRET=$EXPRESS_SESSION_SECRET
 TOKEN_HASH_SECRET=$TOKEN_HASH_SECRET
+
+# Redis configuration
+REDIS_PASSWORD=$REDIS_PASSWORD
+
+# PostgreSQL configuration
+POSTGRES_USER=$POSTGRES_USER
+POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+POSTGRES_DB=$POSTGRES_DB
 
 # Domain settings
 DOMAIN_NAME=$DOMAIN_NAME
