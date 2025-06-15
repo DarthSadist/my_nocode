@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  flowise:
+    image: flowiseai/flowise
+    restart: unless-stopped
+    container_name: flowise
+    environment:
+      - PORT=3001
+      # Устаревший метод аутентификации, оставлен для миграции
+      - FLOWISE_USERNAME=${FLOWISE_USERNAME}
+      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
+      # Новая система аутентификации (v3.0.1+)
+      - APP_URL=https://flowise.${DOMAIN_NAME}
+      - JWT_AUTH_TOKEN_SECRET=${JWT_AUTH_TOKEN_SECRET}
+      - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET}
+      - JWT_TOKEN_EXPIRY_IN_MINUTES=60
+      - JWT_REFRESH_TOKEN_EXPIRY_IN_MINUTES=129600
+      - EXPRESS_SESSION_SECRET=${EXPRESS_SESSION_SECRET}
+      - TOKEN_HASH_SECRET=${TOKEN_HASH_SECRET}
+      - PASSWORD_SALT_HASH_ROUNDS=12
+    volumes:
+      - /opt/flowise:/root/.flowise
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true 
