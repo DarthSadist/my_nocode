@@ -14,6 +14,16 @@ Dpkg::Options {
 }
 EOF"
 
+# Функция для ожидания освобождения блокировок apt/dpkg
+wait_for_apt_locks() {
+  echo "Ожидание освобождения блокировок apt/dpkg..."
+  while sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1; do
+    echo "Блокировка apt/dpkg активна, ожидаем 10 секунд..."
+    sleep 10
+  done
+  echo "Блокировки освобождены, продолжаем установку..."
+}
+
 # apt options for automatic confirmation and preventing prompts
 APT_OPTIONS="-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -y"
 
@@ -22,6 +32,7 @@ if ! [ -x "$(command -v docker)" ]; then
   echo "Docker is not installed. Installing Docker..."
   
   # Update system
+  wait_for_apt_locks
   sudo DEBIAN_FRONTEND=noninteractive apt-get -qq update
   if [ $? -ne 0 ]; then
     echo "ERROR: Failed to update package list"
@@ -29,6 +40,7 @@ if ! [ -x "$(command -v docker)" ]; then
   fi
   
   # Install required packages
+  wait_for_apt_locks
   sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y ca-certificates curl gnupg lsb-release $APT_OPTIONS
   if [ $? -ne 0 ]; then
     echo "ERROR: Failed to install required packages"
@@ -61,6 +73,7 @@ if ! [ -x "$(command -v docker)" ]; then
   fi
   
   # Update packages
+  wait_for_apt_locks
   sudo DEBIAN_FRONTEND=noninteractive apt-get -qq update
   if [ $? -ne 0 ]; then
     echo "ERROR: Failed to update package list after adding Docker repository"
@@ -68,6 +81,7 @@ if ! [ -x "$(command -v docker)" ]; then
   fi
   
   # Install Docker
+  wait_for_apt_locks
   sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin $APT_OPTIONS
   if [ $? -ne 0 ]; then
     echo "ERROR: Failed to install Docker"
