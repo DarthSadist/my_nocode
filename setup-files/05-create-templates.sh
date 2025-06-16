@@ -23,13 +23,23 @@ volumes:
   caddy_data:
     external: true
   caddy_config:
+  redis_data:
+    external: true
+  postgres_data:
+    external: true
+  pgadmin_data:
+    external: true
 
 services:
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
     restart: unless-stopped
+    depends_on:
+      - redis
+      - postgres
     environment:
+      # Основные настройки
       - N8N_ENCRYPTION_KEY=\${N8N_ENCRYPTION_KEY}
       - N8N_USER_MANAGEMENT_DISABLED=false
       - N8N_DIAGNOSTICS_ENABLED=false
@@ -38,6 +48,29 @@ services:
       - N8N_DEFAULT_USER_EMAIL=\${N8N_DEFAULT_USER_EMAIL}
       - N8N_DEFAULT_USER_PASSWORD=\${N8N_DEFAULT_USER_PASSWORD}
       - N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+      # Базовая аутентификация
+      - N8N_BASIC_AUTH_ACTIVE=\${N8N_BASIC_AUTH_ACTIVE}
+      - N8N_BASIC_AUTH_USER=\${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=\${N8N_BASIC_AUTH_PASSWORD}
+      # Основные настройки URL
+      - N8N_HOST=\${SUBDOMAIN}.\${DOMAIN_NAME}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://\${SUBDOMAIN}.\${DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=\${GENERIC_TIMEZONE}
+      # Настройки Redis для очереди
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_PASSWORD=\${REDIS_PASSWORD}
+      # Настройки PostgreSQL для хранения данных
+      - DB_TYPE=postgresdb
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=\${POSTGRES_DB}
+      - DB_USER=\${POSTGRES_USER}
+      - DB_PASSWORD=\${POSTGRES_PASSWORD}
+      - DB_POSTGRESDB_SCHEMA=public
     volumes:
       - n8n_data:/home/node/.n8n
       - /opt/n8n/files:/files
@@ -55,6 +88,45 @@ services:
       - /opt/n8n/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - app-network
+      
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: redis-server --requirepass \${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=\${POSTGRES_USER}
+      - POSTGRES_PASSWORD=\${POSTGRES_PASSWORD}
+      - POSTGRES_DB=\${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4:8.3
+    container_name: pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=\${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=\${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_CONFIG_SERVER_MODE=True
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     networks:
       - app-network
 
@@ -183,6 +255,10 @@ n8n.${DOMAIN_NAME} {
 
 flowise.${DOMAIN_NAME} {
     reverse_proxy flowise:3001
+}
+
+pgadmin.${DOMAIN_NAME} {
+    reverse_proxy pgadmin:80
 }
 EOL
 if [ $? -ne 0 ]; then

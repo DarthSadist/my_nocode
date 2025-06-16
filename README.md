@@ -8,6 +8,9 @@ This repository contains scripts for automatic configuration of:
 
 - **n8n** - a powerful open-source workflow automation platform
 - **Flowise** - a tool for creating customizable AI flows
+- **Redis** - in-memory data structure store used as a cache
+- **PostgreSQL (with pgvector)** - database with vector extension for AI operations
+- **pgAdmin 4** - web-based management tool for PostgreSQL
 - **Caddy** - a modern web server with automatic HTTPS
 
 The system is configured to work with your domain name and automatically obtains Let's Encrypt SSL certificates.
@@ -56,8 +59,33 @@ After installation completes, you will be able to access services at the followi
 
 - **n8n**: https://n8n.your-domain.xxx
 - **Flowise**: https://flowise.your-domain.xxx
+- **pgAdmin**: https://pgadmin.your-domain.xxx
 
 Login credentials will be displayed at the end of the installation process.
+
+### PostgreSQL Connection in pgAdmin
+
+To connect to the PostgreSQL database from pgAdmin:
+
+1. Login to pgAdmin using your email and generated password
+2. Add a new server in pgAdmin with the following settings:
+   - **Name**: Any name you prefer (e.g., "Local PostgreSQL")
+   - **Connection tab**:
+     - **Host**: postgres
+     - **Port**: 5432
+     - **Database**: flowise (default)
+     - **Username**: flowise (default)
+     - **Password**: The password generated during installation (check `.env` file)
+
+### Connecting n8n to PostgreSQL
+
+To connect n8n workflows to the PostgreSQL database, create a new credentials entry with the following details:
+
+- **Host**: postgres
+- **Port**: 5432
+- **Database**: flowise (default)
+- **Username**: flowise (default)
+- **Password**: The password generated during installation (check `.env` file)
 
 ## Project structure
 
@@ -82,6 +110,14 @@ docker compose -f n8n-docker-compose.yaml restart
 docker compose -f flowise-docker-compose.yaml restart
 ```
 
+To restart specific services:
+
+```bash
+docker compose -f n8n-docker-compose.yaml restart n8n
+docker compose -f n8n-docker-compose.yaml restart pgadmin
+docker compose -f n8n-docker-compose.yaml restart redis postgres
+```
+
 ### Stopping services
 
 ```bash
@@ -94,6 +130,22 @@ docker compose -f flowise-docker-compose.yaml down
 ```bash
 docker compose -f n8n-docker-compose.yaml logs
 docker compose -f flowise-docker-compose.yaml logs
+```
+
+View logs for specific services:
+
+```bash
+docker compose -f n8n-docker-compose.yaml logs n8n
+docker compose -f n8n-docker-compose.yaml logs pgadmin
+docker compose -f n8n-docker-compose.yaml logs postgres
+```
+
+### Database Management
+
+PostgreSQL database is accessible via pgAdmin at https://pgadmin.your-domain.xxx or directly using any PostgreSQL client:
+
+```bash
+docker exec -it postgres psql -U flowise -d flowise
 ```
 
 ## Security

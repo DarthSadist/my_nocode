@@ -105,5 +105,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Создание Docker тома для pgAdmin
+echo "Creating Docker volume for pgAdmin..."
+sudo docker volume create pgadmin_data
+if [ $? -ne 0 ]; then
+  echo "ERROR: Failed to create Docker volume pgadmin_data"
+  exit 1
+fi
+
 echo "✅ Directories and users successfully configured"
 exit 0 

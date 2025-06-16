@@ -71,6 +71,22 @@ if [ -z "$FLOWISE_PASSWORD" ]; then
   exit 1
 fi
 
+# Генерация пароля для базовой аутентификации n8n
+N8N_BASIC_AUTH_USER="admin"
+N8N_BASIC_AUTH_PASSWORD=$(generate_random_string 16)
+if [ -z "$N8N_BASIC_AUTH_PASSWORD" ]; then
+  echo "ERROR: Failed to generate basic auth password for n8n"
+  exit 1
+fi
+
+# Генерация учетных данных для pgAdmin
+PGADMIN_DEFAULT_EMAIL="$USER_EMAIL"
+PGADMIN_DEFAULT_PASSWORD=$(generate_random_string 16)
+if [ -z "$PGADMIN_DEFAULT_PASSWORD" ]; then
+  echo "ERROR: Failed to generate password for pgAdmin"
+  exit 1
+fi
+
 # Генерация дополнительных секретов для новой системы аутентификации Flowise v3.0.1+
 JWT_AUTH_TOKEN_SECRET=$(generate_random_string 40)
 if [ -z "$JWT_AUTH_TOKEN_SECRET" ]; then
@@ -120,6 +136,11 @@ N8N_USER_MANAGEMENT_JWT_SECRET=$N8N_USER_MANAGEMENT_JWT_SECRET
 N8N_DEFAULT_USER_EMAIL=$USER_EMAIL
 N8N_DEFAULT_USER_PASSWORD=$N8N_PASSWORD
 
+# n8n basic authentication
+N8N_BASIC_AUTH_ACTIVE=true
+N8N_BASIC_AUTH_USER=$N8N_BASIC_AUTH_USER
+N8N_BASIC_AUTH_PASSWORD=$N8N_BASIC_AUTH_PASSWORD
+
 # n8n host configuration
 SUBDOMAIN=n8n
 GENERIC_TIMEZONE=$GENERIC_TIMEZONE
@@ -141,6 +162,11 @@ REDIS_PASSWORD=$REDIS_PASSWORD
 POSTGRES_USER=$POSTGRES_USER
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 POSTGRES_DB=$POSTGRES_DB
+
+# pgAdmin configuration
+PGADMIN_DEFAULT_EMAIL=$PGADMIN_DEFAULT_EMAIL
+PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD
+PGADMIN_SUBDOMAIN=pgadmin
 
 # Domain settings
 DOMAIN_NAME=$DOMAIN_NAME
