@@ -108,6 +108,7 @@ main() {
   
   echo "n8n is available at: https://n8n.${DOMAIN_NAME}"
   echo "Flowise is available at: https://flowise.${DOMAIN_NAME}"
+  echo "pgAdmin is available at: https://pgadmin.${DOMAIN_NAME}"
   echo ""
   echo "Login credentials for n8n:"
   echo "Email: ${USER_EMAIL}"
@@ -116,6 +117,10 @@ main() {
   echo "Login credentials for Flowise:"
   echo "Username: admin"
   echo "Password: ${FLOWISE_PASSWORD:-<check the .env file>}"
+  echo ""
+  echo "Login credentials for pgAdmin:"
+  echo "Email: ${USER_EMAIL}"
+  echo "Password: <check the .env file for PGADMIN_DEFAULT_PASSWORD>"
   echo ""
   echo "Please note that for the domain name to work, you need to configure DNS records"
   echo "pointing to the IP address of this server."

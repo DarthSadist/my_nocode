@@ -44,6 +44,13 @@ generate_flowise_password() {
   echo "$password"
 }
 
+# Function to generate pgAdmin safe passwords (no special characters that could cause issues)
+generate_pgadmin_password() {
+  length=$1
+  # Используем только буквы и цифры для большей совместимости
+  cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${length} | head -n 1
+}
+
 # Generating keys and passwords
 N8N_ENCRYPTION_KEY=$(generate_random_string 40)
 if [ -z "$N8N_ENCRYPTION_KEY" ]; then
@@ -81,7 +88,7 @@ fi
 
 # Генерация учетных данных для pgAdmin
 PGADMIN_DEFAULT_EMAIL="$USER_EMAIL"
-PGADMIN_DEFAULT_PASSWORD=$(generate_random_string 16)
+PGADMIN_DEFAULT_PASSWORD=$(generate_pgadmin_password 16)
 if [ -z "$PGADMIN_DEFAULT_PASSWORD" ]; then
   echo "ERROR: Failed to generate password for pgAdmin"
   exit 1
