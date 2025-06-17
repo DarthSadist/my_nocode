@@ -113,5 +113,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Создание Docker тома для Qdrant
+echo "Creating Docker volume for Qdrant..."
+sudo docker volume create qdrant_data
+if [ $? -ne 0 ]; then
+  echo "ERROR: Failed to create Docker volume qdrant_data"
+  exit 1
+fi
+
 echo "✅ Directories and users successfully configured"
 exit 0 

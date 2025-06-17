@@ -135,6 +135,13 @@ if [ -z "$POSTGRES_PASSWORD" ]; then
   exit 1
 fi
 
+# Генерация API ключа для Qdrant
+QDRANT_API_KEY=$(generate_random_string 32)
+if [ -z "$QDRANT_API_KEY" ]; then
+  echo "ERROR: Failed to generate API key for Qdrant"
+  exit 1
+fi
+
 # Writing values to .env file
 cat > .env << EOL
 # Settings for n8n
@@ -174,6 +181,11 @@ POSTGRES_DB=$POSTGRES_DB
 PGADMIN_DEFAULT_EMAIL=$PGADMIN_DEFAULT_EMAIL
 PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD
 PGADMIN_SUBDOMAIN=pgadmin
+
+# Qdrant configuration
+QDRANT_API_KEY=$QDRANT_API_KEY
+QDRANT_SUBDOMAIN=qdrant
+QDRANT_UI_SUBDOMAIN=qdrant-ui
 
 # Domain settings
 DOMAIN_NAME=$DOMAIN_NAME

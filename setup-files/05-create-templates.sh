@@ -260,6 +260,14 @@ flowise.${DOMAIN_NAME} {
 pgadmin.${DOMAIN_NAME} {
     reverse_proxy pgadmin:80
 }
+
+qdrant.${DOMAIN_NAME} {
+    reverse_proxy qdrant:6333
+}
+
+qdrant-ui.${DOMAIN_NAME} {
+    reverse_proxy qdrant:6334
+}
 EOL
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed to create Caddyfile"

@@ -11,6 +11,7 @@ This repository contains scripts for automatic configuration of:
 - **Redis** - in-memory data structure store used as a cache
 - **PostgreSQL (with pgvector)** - database with vector extension for AI operations
 - **pgAdmin 4** - web-based management tool for PostgreSQL
+- **Qdrant** - high-performance vector database for AI applications
 - **Caddy** - a modern web server with automatic HTTPS
 
 The system is configured to work with your domain name and automatically obtains Let's Encrypt SSL certificates.
@@ -60,6 +61,8 @@ After installation completes, you will be able to access services at the followi
 - **n8n**: https://n8n.your-domain.xxx
 - **Flowise**: https://flowise.your-domain.xxx
 - **pgAdmin**: https://pgadmin.your-domain.xxx
+- **Qdrant API**: https://qdrant.your-domain.xxx
+- **Qdrant UI**: https://qdrant-ui.your-domain.xxx
 
 Login credentials will be displayed at the end of the installation process.
 
@@ -146,6 +149,47 @@ PostgreSQL database is accessible via pgAdmin at https://pgadmin.your-domain.xxx
 
 ```bash
 docker exec -it postgres psql -U flowise -d flowise
+```
+
+### Qdrant Vector Database
+
+Qdrant is a high-performance vector database optimized for AI applications with similarity search and filtering capabilities.
+
+#### Accessing Qdrant
+
+- **REST API**: https://qdrant.your-domain.xxx
+- **Web UI Dashboard**: https://qdrant-ui.your-domain.xxx
+
+#### Using Qdrant in Flowise
+
+To connect Flowise to Qdrant:
+
+1. Add a new Qdrant store component in Flowise
+2. Configure with the following settings:
+   - **Endpoint**: https://qdrant.your-domain.xxx
+   - **API Key**: The key generated during installation (check `.env` file)
+   
+#### Using Qdrant in n8n
+
+In n8n, you can use HTTP Request nodes to interact with Qdrant API:
+
+1. Set the URL to: `https://qdrant.your-domain.xxx`
+2. Add header: `api-key` with the value from your `.env` file
+
+#### Basic Qdrant API Commands
+
+Example of creating a collection with the REST API:
+
+```bash
+curl -X PUT https://qdrant.your-domain.xxx/collections/my_collection \
+     -H "Content-Type: application/json" \
+     -H "api-key: YOUR_API_KEY" \
+     -d '{
+       "vectors": {
+         "size": 1536,
+         "distance": "Cosine"
+       }
+     }'
 ```
 
 ## Security
