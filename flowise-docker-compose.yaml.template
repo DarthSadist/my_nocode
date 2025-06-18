@@ -83,10 +83,18 @@ services:
       - QDRANT_API_KEY=${QDRANT_API_KEY}
     volumes:
       - qdrant_data:/qdrant/storage
-    # Порты без привязки к localhost для доступа из контейнера Caddy
+    # Только API порт нужен для доступа из контейнера Caddy
     ports:
       - 6333:6333
-      - 6334:6334
+    networks:
+      - app-network
+      
+  qdrant-ui:
+    image: qdrant/qdrant-web-ui:latest
+    container_name: qdrant-ui
+    restart: unless-stopped
+    environment:
+      - API_URL=https://qdrant.${DOMAIN_NAME}
     networks:
       - app-network
 

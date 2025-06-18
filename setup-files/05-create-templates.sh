@@ -266,7 +266,7 @@ qdrant.${DOMAIN_NAME} {
 }
 
 qdrant-ui.${DOMAIN_NAME} {
-    reverse_proxy qdrant:6334
+    reverse_proxy qdrant-ui:80
 }
 EOL
 if [ $? -ne 0 ]; then
