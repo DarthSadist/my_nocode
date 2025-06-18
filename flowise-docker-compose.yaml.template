@@ -83,9 +83,10 @@ services:
       - QDRANT_API_KEY=${QDRANT_API_KEY}
     volumes:
       - qdrant_data:/qdrant/storage
+    # Порты без привязки к localhost для доступа из контейнера Caddy
     ports:
-      - 127.0.0.1:6333:6333
-      - 127.0.0.1:6334:6334
+      - 6333:6333
+      - 6334:6334
     networks:
       - app-network
 
