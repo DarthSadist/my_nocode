@@ -110,7 +110,7 @@ services:
       - app-network
       
   qdrant-ui:
-    image: qdrant/qdrant-web-ui:latest
+    image: ghcr.io/qdrant/qdrant-web-ui:latest
     container_name: qdrant-ui
     restart: unless-stopped
     environment:
