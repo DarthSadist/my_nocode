@@ -81,23 +81,20 @@ services:
     restart: unless-stopped
     environment:
       - QDRANT_API_KEY=${QDRANT_API_KEY}
+      # Настройки согласно официальной документации
+      - QDRANT_ALLOW_RECOVERY_ON_CORRUPTION=true
+      - QDRANT_TELEMETRY_DISABLED=true
+      # Включаем веб-интерфейс
+      - QDRANT_SERVICE__ENABLE_WEB_UI=true
     volumes:
       - qdrant_data:/qdrant/storage
-    # Только API порт нужен для доступа из контейнера Caddy
     ports:
-      - 6333:6333
-    networks:
-      - app-network
-      
-  qdrant-ui:
-    image: hbogobot/qdrant-ui:latest
-    container_name: qdrant-ui
-    restart: unless-stopped
-    environment:
-      - API_URL=https://qdrant.${DOMAIN_NAME}
+      - 6333:6333  # REST API
+      - 6334:6334  # gRPC API
     networks:
       - app-network
 
+
 networks:
   app-network:
-    external: true 
+    external: true

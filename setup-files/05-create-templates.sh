@@ -262,11 +262,8 @@ pgadmin.${DOMAIN_NAME} {
 }
 
 qdrant.${DOMAIN_NAME} {
+    # Проксируем API и встроенный веб-интерфейс Qdrant
     reverse_proxy qdrant:6333
-}
-
-qdrant-ui.${DOMAIN_NAME} {
-    reverse_proxy qdrant-ui:80
 }
 EOL
 if [ $? -ne 0 ]; then
