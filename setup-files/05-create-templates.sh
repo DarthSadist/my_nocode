@@ -268,7 +268,10 @@ qdrant.${DOMAIN_NAME} {
 
 qdrant-ui.${DOMAIN_NAME} {
     # Проксируем веб-интерфейс Qdrant
-    reverse_proxy qdrant:6333
+    reverse_proxy qdrant:6333 {
+        # Перенаправляем корневой путь на /dashboard
+        rewrite / /dashboard
+    }
 }
 EOL
 if [ $? -ne 0 ]; then
